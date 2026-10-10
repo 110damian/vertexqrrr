@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Codes</title>
-  <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -86,8 +85,9 @@
       margin-bottom: 1.5rem;
     }
 
-    #qrcode canvas {
+    #qrcode img {
       border-radius: 8px;
+      max-width: 280px;
     }
 
     .close-btn {
@@ -168,16 +168,16 @@
   <div class="container hidden" id="mainContent">
     <h1>QR CODES</h1>
     <div class="buttons">
-      <button onclick="showQR(0)">01</button>
-      <button onclick="showQR(1)">02</button>
-      <button onclick="showQR(2)">03</button>
-      <button onclick="showQR(3)">04</button>
-      <button onclick="showQR(4)">05</button>
-      <button onclick="showQR(5)">51</button>
-      <button onclick="showQR(6)">52</button>
-      <button onclick="showQR(7)">53</button>
-      <button onclick="showQR(8)">54</button>
-      <button onclick="showQR(9)">55</button>
+      <button onclick="showQR('01')">01</button>
+      <button onclick="showQR('02')">02</button>
+      <button onclick="showQR('03')">03</button>
+      <button onclick="showQR('04')">04</button>
+      <button onclick="showQR('05')">05</button>
+      <button onclick="showQR('51')">51</button>
+      <button onclick="showQR('52')">52</button>
+      <button onclick="showQR('53')">53</button>
+      <button onclick="showQR('54')">54</button>
+      <button onclick="showQR('55')">55</button>
     </div>
   </div>
 
@@ -189,19 +189,6 @@
   </div>
 
   <script>
-    const codes = [
-      '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'
-    ];
-
     function verify() {
       const input = document.getElementById('verifyInput').value.toLowerCase();
       if (input === 'handsome') {
@@ -211,9 +198,9 @@
         document.getElementById('errorMsg').style.display = 'none';
         
         if (pendingQR !== null) {
-          const index = pendingQR;
+          const id = pendingQR;
           pendingQR = null;
-          showQR(index);
+          showQR(id);
         }
       } else {
         document.getElementById('errorMsg').style.display = 'block';
@@ -227,33 +214,16 @@
 
     let pendingQR = null;
 
-    function showQR(index) {
+    function showQR(id) {
       const mainContent = document.getElementById('mainContent');
       if (mainContent.classList.contains('hidden')) {
-        pendingQR = index;
+        pendingQR = id;
         document.getElementById('verifyModal').classList.add('active');
         return;
       }
       
       const qrContainer = document.getElementById('qrcode');
-      qrContainer.innerHTML = '<p style="color: #888;">Loading...</p>';
-      
-      QRCode.toDataURL(codes[index], {
-        width: 280,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#ffffff'
-        },
-        errorCorrectionLevel: 'H'
-      }, function(error, url) {
-        if (error) {
-          qrContainer.innerHTML = '<p style="color: #ff6b6b;">Error generating QR</p>';
-          console.error(error);
-          return;
-        }
-        qrContainer.innerHTML = '<img src="' + url + '" style="border-radius: 8px;">';
-      });
+      qrContainer.innerHTML = '<img src="qr_images/' + id + '.png" alt="QR Code ' + id + '">';
       
       document.getElementById('modal').classList.add('active');
     }
