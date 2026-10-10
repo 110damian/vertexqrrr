@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Codes</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    button {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 1.5rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #2a2a2a;
+      border-color: #555;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    #qrcode {
+      margin-bottom: 1.5rem;
+    }
+
+    #qrcode canvas {
+      border-radius: 8px;
+    }
+
+    .close-btn {
+      background: #333;
+      border: none;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .close-btn:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QR CODES</h1>
+    <div class="buttons">
+      <button onclick="showQR(0)">01</button>
+      <button onclick="showQR(1)">02</button>
+      <button onclick="showQR(2)">03</button>
+      <button onclick="showQR(3)">04</button>
+      <button onclick="showQR(4)">05</button>
+      <button onclick="showQR(5)">51</button>
+      <button onclick="showQR(6)">52</button>
+      <button onclick="showQR(7)">53</button>
+      <button onclick="showQR(8)">54</button>
+      <button onclick="showQR(9)">55</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div id="qrcode"></div>
+      <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const codes = [
+      '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'
+    ];
+
+    function showQR(index) {
+      const qrContainer = document.getElementById('qrcode');
+      qrContainer.innerHTML = '';
+      
+      QRCode.toCanvas(codes[index], { 
+        width: 280,
+        margin: 2,
+        color: {
+          dark: '#ffffff',
+          light: '#000000'
+        }
+      }, function(error, canvas) {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        qrContainer.appendChild(canvas);
+      });
+      
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
