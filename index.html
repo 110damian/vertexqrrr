@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Codes</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -147,20 +147,11 @@
       const qrContainer = document.getElementById('qrcode');
       qrContainer.innerHTML = '';
       
-      QRCode.toCanvas(codes[index], { 
-        width: 280,
-        margin: 2,
-        color: {
-          dark: '#ffffff',
-          light: '#000000'
-        }
-      }, function(error, canvas) {
-        if (error) {
-          console.error(error);
-          return;
-        }
-        qrContainer.appendChild(canvas);
-      });
+      const qr = qrcode(0, 'M');
+      qr.addData(codes[index]);
+      qr.make();
+      
+      qrContainer.innerHTML = qr.createSvgTag(8, 0);
       
       document.getElementById('modal').classList.add('active');
     }
