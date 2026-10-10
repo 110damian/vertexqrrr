@@ -103,10 +103,69 @@
     .close-btn:hover {
       background: #444;
     }
+
+    .verify-modal h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 300;
+    }
+
+    .verify-input {
+      background: #0f0f0f;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 1rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 280px;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .verify-input:focus {
+      outline: none;
+      border-color: #555;
+    }
+
+    .verify-btn {
+      background: #333;
+      border: none;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .verify-btn:hover {
+      background: #444;
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="modal verify-modal active" id="verifyModal">
+    <div class="modal-content">
+      <h2>Are you Damian?</h2>
+      <input type="password" class="verify-input" id="verifyInput" placeholder="Password">
+      <button class="verify-btn" onclick="verify()">Enter</button>
+      <p class="error-msg" id="errorMsg">Incorrect password</p>
+    </div>
+  </div>
+
+  <div class="container hidden" id="mainContent">
     <h1>QR CODES</h1>
     <div class="buttons">
       <button onclick="showQR(0)">01</button>
@@ -143,7 +202,39 @@
       'BCOY88OP3pG7YtnfUgpXPgrSOdvSLFULfGeXnF8BvA5OZGG4EsmRZSzgR8MvfRyYySz5nMRRfohfarFMKVoDp4VEsLLDqFh4EiwEHxASCGjsJIhRZ4FmLDLpieuHX6EFJl8EHEY8XNyTIs837r3rNbHaoh3qiodsN3mxScrB9MWWWviQXptDLPRtlstEmUoS0J8vKgbD'
     ];
 
+    function verify() {
+      const input = document.getElementById('verifyInput').value.toLowerCase();
+      if (input === 'handsome') {
+        document.getElementById('verifyModal').classList.remove('active');
+        document.getElementById('mainContent').classList.remove('hidden');
+        document.getElementById('verifyInput').value = '';
+        document.getElementById('errorMsg').style.display = 'none';
+        
+        if (pendingQR !== null) {
+          const index = pendingQR;
+          pendingQR = null;
+          showQR(index);
+        }
+      } else {
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('verifyInput').value = '';
+      }
+    }
+
+    document.getElementById('verifyInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') verify();
+    });
+
+    let pendingQR = null;
+
     function showQR(index) {
+      const mainContent = document.getElementById('mainContent');
+      if (mainContent.classList.contains('hidden')) {
+        pendingQR = index;
+        document.getElementById('verifyModal').classList.add('active');
+        return;
+      }
+      
       const qrContainer = document.getElementById('qrcode');
       qrContainer.innerHTML = '';
       
@@ -158,6 +249,9 @@
 
     function closeModal() {
       document.getElementById('modal').classList.remove('active');
+      if (pendingQR !== null) {
+        pendingQR = null;
+      }
     }
 
     document.getElementById('modal').addEventListener('click', function(e) {
