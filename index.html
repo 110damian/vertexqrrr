@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Codes</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -236,13 +236,24 @@
       }
       
       const qrContainer = document.getElementById('qrcode');
-      qrContainer.innerHTML = '';
+      qrContainer.innerHTML = '<p style="color: #888;">Loading...</p>';
       
-      const qr = qrcode(0, 'M');
-      qr.addData(codes[index]);
-      qr.make();
-      
-      qrContainer.innerHTML = qr.createSvgTag(8, 0);
+      QRCode.toDataURL(codes[index], {
+        width: 280,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'H'
+      }, function(error, url) {
+        if (error) {
+          qrContainer.innerHTML = '<p style="color: #ff6b6b;">Error generating QR</p>';
+          console.error(error);
+          return;
+        }
+        qrContainer.innerHTML = '<img src="' + url + '" style="border-radius: 8px;">';
+      });
       
       document.getElementById('modal').classList.add('active');
     }
